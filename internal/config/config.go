@@ -1,22 +1,33 @@
 package config
 
-import "github.com/caarlos0/env/v11"
+import (
+	"fmt"
+	"github.com/caarlos0/env/v11"
+)
 
 type Config struct {
-	postgresUser string `env:"POSTGRES_USER,required"`
-	postgresPass string `env:"POSTGRES_PASSWORD,required"`
-	postgresDB   string `env:"POSTGRES_DB,required"`
-	postgresHost string `env:"POSTGRES_HOST,required"`
-	postgresPort string `env:"POSTGRES_PORT,required"`
-	serviceHost  string `env:"SERVICE_HOST,required"`
-	servicePort  string `env:"SERVICE_PORT,required"`
+	PostgresConfig
+	ServiceConfig
+}
+
+type PostgresConfig struct {
+	PostgresUser string `env:"POSTGRES_USER,required"`
+	PostgresPass string `env:"POSTGRES_PASSWORD,required"`
+	PostgresDB   string `env:"POSTGRES_DB,required"`
+	PostgresHost string `env:"POSTGRES_HOST,required"`
+	PostgresPort string `env:"POSTGRES_PORT,required"`
+}
+
+type ServiceConfig struct {
+	ServiceHost string `env:"SERVICE_HOST,required"`
+	ServicePort string `env:"SERVICE_PORT,required"`
 }
 
 func MustLoad() *Config {
-	cfg := &Config{}
-	if err := env.Parse(cfg); err != nil {
-		panic(err)
+	cfg := Config{}
+	if err := env.Parse(&cfg); err != nil {
+		fmt.Printf("%+v\n", err)
 	}
 
-	return cfg
+	return &cfg
 }
