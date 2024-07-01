@@ -8,6 +8,7 @@ import (
 type Config struct {
 	PostgresConfig
 	ServiceConfig
+	ApiConfig
 }
 
 type PostgresConfig struct {
@@ -21,6 +22,11 @@ type PostgresConfig struct {
 type ServiceConfig struct {
 	ServiceHost string `env:"SERVICE_HOST,required"`
 	ServicePort string `env:"SERVICE_PORT,required"`
+}
+
+type ApiConfig struct {
+	ApiHost string `env:"API_HOST,required"`
+	ApiPort string `env:"API_PORT,required"`
 }
 
 func MustLoad() *Config {
