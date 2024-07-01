@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"github.com/caarlos0/env/v11"
 )
 
@@ -32,7 +31,7 @@ type ApiConfig struct {
 func MustLoad() *Config {
 	cfg := Config{}
 	if err := env.Parse(&cfg); err != nil {
-		fmt.Printf("%+v\n", err)
+		panic(err)
 	}
 
 	return &cfg
