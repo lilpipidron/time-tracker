@@ -1,27 +1,36 @@
 package postgresql
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/postgres"
+	migratePostgres "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type Storage struct {
-	DB *sql.DB
+	DB *gorm.DB
 }
 
-func NewPostgresDB(psqlInfo, dbname string) (*Storage, error) {
+func NewPostgresDB(dsn, dbname string) (*Storage, error) {
 	const errFunc = "storage.postgresql.NewStorage"
 
-	db, err := sql.Open("postgres", psqlInfo)
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", errFunc, err)
 	}
 
-	driver, err := postgres.WithInstance(db, &postgres.Config{})
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", errFunc, err)
+	}
+
+	driver, err := migratePostgres.WithInstance(sqlDB, &migratePostgres.Config{})
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", errFunc, err)
 	}
@@ -31,10 +40,8 @@ func NewPostgresDB(psqlInfo, dbname string) (*Storage, error) {
 		return nil, fmt.Errorf("%s: %w", errFunc, err)
 	}
 
-	if err := migration.Up(); err != nil {
-		if !errors.Is(err, migrate.ErrNoChange) {
-			return nil, fmt.Errorf("%s: %w", errFunc, err)
-		}
+	if err := migration.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
+		return nil, fmt.Errorf("%s: %w", errFunc, err)
 	}
 
 	return &Storage{DB: db}, nil

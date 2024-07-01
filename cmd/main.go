@@ -17,12 +17,13 @@ func init() {
 func main() {
 	cfg := config.MustLoad()
 
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable", cfg.PostgresHost, cfg.PostgresPort,
-		cfg.PostgresUser, cfg.PostgresPassword, cfg.PostgresDB)
+	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		cfg.PostgresHost, cfg.PostgresPort, cfg.PostgresUser, cfg.PostgresPassword, cfg.PostgresDB)
 
-	_, err := postgresql.NewPostgresDB(psqlInfo, "postgres")
+	_, err := postgresql.NewPostgresDB(dsn, cfg.PostgresDB)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed to connect to database: %v", err)
 	}
+
+	log.Info("Connected to database successfully")
 }
