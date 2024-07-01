@@ -23,6 +23,7 @@ func main() {
 		cfg.PostgresHost, cfg.PostgresPort, cfg.PostgresUser, cfg.PostgresPassword, cfg.PostgresDB)
 	log.Debug("Connecting to PostgreSQL...")
 	_, err := postgresql.NewPostgresDB(dsn, cfg.PostgresDB)
+
 	if err != nil {
 		log.Debug("Failed to connect to database: %v", err)
 	}

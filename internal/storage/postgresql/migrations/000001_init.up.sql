@@ -5,7 +5,7 @@ create table if not exists users
     surname        varchar not null,
     patronymic     varchar not null,
     address        TEXT    not null,
-    passportNumber varchar not null
+    passport_number varchar not null
 );
 
 create table if not exists tasks
