@@ -12,16 +12,16 @@ type Config struct {
 }
 
 type PostgresConfig struct {
-	PostgresUser string `env:"POSTGRES_USER,required"`
-	PostgresPass string `env:"POSTGRES_PASSWORD,required"`
-	PostgresDB   string `env:"POSTGRES_DB,required"`
-	PostgresHost string `env:"POSTGRES_HOST,required"`
-	PostgresPort string `env:"POSTGRES_PORT,required"`
+	PostgresUser     string `env:"POSTGRES_USER,required"`
+	PostgresPassword string `env:"POSTGRES_PASSWORD,required"`
+	PostgresDB       string `env:"POSTGRES_DB,required"`
+	PostgresHost     string `env:"POSTGRES_HOST,required"`
+	PostgresPort     int    `env:"POSTGRES_PORT,required"`
 }
 
 type ServiceConfig struct {
 	ServiceHost string `env:"SERVICE_HOST,required"`
-	ServicePort string `env:"SERVICE_PORT,required"`
+	ServicePort int    `env:"SERVICE_PORT,required"`
 }
 
 type ApiConfig struct {
