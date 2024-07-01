@@ -1,9 +1,7 @@
 package main
 
 import (
-	"fmt"
 	"github.com/joho/godotenv"
-	"github.com/lilpipidron/time-tracker/internal/config"
 )
 
 func init() {
@@ -13,5 +11,5 @@ func init() {
 }
 
 func main() {
-	fmt.Println(*config.MustLoad())
+
 }
