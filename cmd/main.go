@@ -3,9 +3,13 @@ package main
 import (
 	"fmt"
 	"github.com/charmbracelet/log"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
 	"github.com/lilpipidron/time-tracker/internal/config"
 	"github.com/lilpipidron/time-tracker/internal/storage/postgresql"
+	"net/http"
+	"strconv"
 )
 
 func init() {
@@ -30,4 +34,31 @@ func main() {
 	log.Debug("Connected to PostgreSQL")
 
 	log.Info("Connected to database successfully")
+
+	router := chi.NewRouter()
+
+	router.Use(middleware.RequestID)
+	router.Use(middleware.Logger)
+	router.Use(middleware.Recoverer)
+	router.Use(middleware.URLFormat)
+
+	router.Get("/user/{userID}", nil)
+
+	router.Get("/user/{userID}/worklogs", nil)
+
+	router.Post("/task/start", nil)
+
+	router.Post("/tasks/stop", nil)
+
+	router.Delete("/user/{userID}", nil)
+
+	router.Put("/user", nil)
+
+	router.Post("/user", nil)
+
+	addr := cfg.ServiceHost + ":" + strconv.Itoa(cfg.ServicePort)
+
+	if err = http.ListenAndServe(addr, router); err != nil {
+		panic(err)
+	}
 }
