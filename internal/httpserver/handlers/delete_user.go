@@ -11,7 +11,6 @@ import (
 func DeleteUser(storage *postgresql.Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Debug("DeleteUser")
-		defer r.Body.Close()
 
 		userID := chi.URLParam(r, "userID")
 		var user models.User

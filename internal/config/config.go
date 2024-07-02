@@ -24,8 +24,7 @@ type ServiceConfig struct {
 }
 
 type ApiConfig struct {
-	ApiHost string `env:"API_HOST,required"`
-	ApiPort string `env:"API_PORT,required"`
+	ApiUrl string `env:"API_URL,required"`
 }
 
 func MustLoad() *Config {

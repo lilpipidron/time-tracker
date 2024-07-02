@@ -55,7 +55,7 @@ func main() {
 
 	router.Put("/user", nil)
 
-	router.Post("/user", nil)
+	router.Post("/user", handlers.AddUser(storage, *cfg))
 
 	addr := cfg.ServiceHost + ":" + strconv.Itoa(cfg.ServicePort)
 
