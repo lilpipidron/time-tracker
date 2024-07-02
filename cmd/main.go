@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
 	"github.com/lilpipidron/time-tracker/internal/config"
+	"github.com/lilpipidron/time-tracker/internal/httpserver/handlers"
 	"github.com/lilpipidron/time-tracker/internal/storage/postgresql"
 	"net/http"
 	"strconv"
@@ -26,7 +27,7 @@ func main() {
 	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		cfg.PostgresHost, cfg.PostgresPort, cfg.PostgresUser, cfg.PostgresPassword, cfg.PostgresDB)
 	log.Debug("Connecting to PostgreSQL...")
-	_, err := postgresql.NewPostgresDB(dsn, cfg.PostgresDB)
+	storage, err := postgresql.NewPostgresDB(dsn, cfg.PostgresDB)
 
 	if err != nil {
 		log.Debug("Failed to connect to database: %v", err)
@@ -50,7 +51,7 @@ func main() {
 
 	router.Post("/tasks/stop", nil)
 
-	router.Delete("/user/{userID}", nil)
+	router.Delete("/user/{userID}", handlers.DeleteUser(storage))
 
 	router.Put("/user", nil)
 
