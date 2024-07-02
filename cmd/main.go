@@ -43,7 +43,7 @@ func main() {
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
 
-	router.Get("/user/{userID}", nil)
+	router.Get("/users", handlers.GetUsers(storage))
 
 	router.Get("/user/{userID}/worklogs", nil)
 

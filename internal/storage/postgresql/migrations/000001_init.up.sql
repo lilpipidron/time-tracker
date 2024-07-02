@@ -3,7 +3,7 @@ create table if not exists users
     id             SERIAL PRIMARY KEY,
     name           varchar not null,
     surname        varchar not null,
-    patronymic     varchar not null,
+    patronymic     varchar,
     address        TEXT    not null,
     passport_number varchar not null
 );

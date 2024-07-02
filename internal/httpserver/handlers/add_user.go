@@ -92,11 +92,11 @@ func AddUser(storage *postgresql.Storage, cfg config.Config) http.HandlerFunc {
 		}
 
 		response, err := sendRequestToApi(requestToApi, cfg)
-		if err != nil {
+		if errors.Is(err, fmt.Errorf("bad request")) {
+			render.Status(r, http.StatusBadRequest)
+			return
+		} else if errors.Is(err, fmt.Errorf("internal server error")) {
 			render.Status(r, http.StatusInternalServerError)
-			render.JSON(w, r, fmt.Sprintf("error sending request to API: %s", err.Error()))
-			log.Debug("error sending request to API:", err)
-			log.Info("Failed add user")
 			return
 		}
 
@@ -142,6 +142,14 @@ func sendRequestToApi(request RequestToApi, cfg config.Config) (*ResponseFromApi
 	if err != nil {
 		log.Debug("Failed sending request to API:", "error", err)
 		return nil, fmt.Errorf("error sending HTTP request: %s", err.Error())
+	}
+
+	if resp.StatusCode == http.StatusBadRequest {
+		log.Debug("Get status bad request")
+		return nil, fmt.Errorf("bad request")
+	} else if resp.StatusCode == http.StatusInternalServerError {
+		log.Debug("Get status internal server error")
+		return nil, fmt.Errorf("internal server error")
 	}
 
 	var responseFromApi ResponseFromApi
