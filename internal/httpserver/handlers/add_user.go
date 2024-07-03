@@ -28,6 +28,18 @@ type ResponseFromApi struct {
 	Address    string `json:"address"`
 }
 
+// AddUserHandler handles the addition of a new user
+//
+//	@Summary		Add a new user
+//	@Description	Add a new user by providing their information
+//	@Tags			users
+//	@Accept			json
+//	@Produce		json
+//	@Param			user	body	requests.AddUserRequest	true	"Add User Request"
+//	@Success		200
+//	@Failure		400	{object}	map[string]string
+//	@Failure		500	{object}	map[string]string
+//	@Router			/user [post]
 func AddUserHandler(storage *postgresql.Storage, cfg config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Debug("Handling request to add user")

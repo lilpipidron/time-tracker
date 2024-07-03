@@ -12,6 +12,19 @@ import (
 	"reflect"
 )
 
+// ChangeUserInfoHandler handles updating user information
+//
+//	@Summary		Update user information
+//	@Description	Update user information by providing their new details
+//	@Tags			users
+//	@Accept			json
+//	@Produce		json
+//	@Param			user	body		requests.ChangeUserInfo	true	"Change User Info Request"
+//	@Success		200		{object}	models.User
+//	@Failure		400		{object}	map[string]string
+//	@Failure		404		{object}	map[string]string
+//	@Failure		500		{object}	map[string]string
+//	@Router			/user [put]
 func ChangeUserInfoHandler(storage *postgresql.Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Debug("Handling change user info request")

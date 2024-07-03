@@ -12,6 +12,17 @@ import (
 	"time"
 )
 
+// StartTaskHandler handles starting a task for a user
+//
+//	@Summary		Start a task
+//	@Description	Start a new task for a user
+//	@Tags			tasks
+//	@Accept			json
+//	@Produce		json
+//	@Param			startTaskRequest	body		requests.StartTaskRequest	true	"Start Task Request"
+//	@Success		201					{string}	string						"Successfully started task"
+//	@Failure		400					{string}	string						"Invalid request"
+//	@Router			/task/start [post]
 func StartTaskHandler(storage *postgresql.Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Debug("handling start task request")

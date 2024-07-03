@@ -9,6 +9,21 @@ import (
 	"strconv"
 )
 
+// GetUsersHandler handles retrieving users with optional filtering and pagination
+//
+//	@Summary		Get users
+//	@Description	Retrieve users with optional filtering by name, surname, patronymic, address, and passport number, with pagination support
+//	@Tags			users
+//	@Param			name			query		string				false	"First Name"
+//	@Param			surname			query		string				false	"Last Name"
+//	@Param			patronymic		query		string				false	"Patronymic"
+//	@Param			address			query		string				false	"Address"
+//	@Param			passportNumber	query		string				false	"Passport Number"
+//	@Param			page			query		int					false	"Page number for pagination"
+//	@Param			limit			query		int					false	"Number of items per page"
+//	@Success		200				{array}		models.User			"List of users"
+//	@Failure		500				{object}	map[string]string	"Internal Server Error"
+//	@Router			/users [get]
 func GetUsersHandler(storage *postgresql.Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Debug("handling get users")

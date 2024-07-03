@@ -15,6 +15,18 @@ type TaskTime struct {
 	TotalMinutes int64   `json:"total_minutes"`
 }
 
+// GetUserTasksHandler handles getting user tasks with total time spent
+//
+//	@Summary		Get user tasks with total time spent
+//	@Description	Get user tasks with total time spent within a specified date range
+//	@Tags			tasks
+//	@Param			userID		path		int					true	"User ID"
+//	@Param			start_date	query		string				true	"Start Date (YYYY-MM-DD)"
+//	@Param			end_date	query		string				true	"End Date (YYYY-MM-DD)"
+//	@Success		200			{array}		TaskTime			"List of tasks with total time spent"
+//	@Failure		400			{object}	map[string]string	"Invalid date format"
+//	@Failure		500			{object}	map[string]string	"Internal Server Error"
+//	@Router			/user/{userID}/tasks [get]
 func GetUserTasksHandler(storage *postgresql.Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Debug("handling get user tasks request")

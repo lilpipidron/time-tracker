@@ -1,0 +1,321 @@
+basePath: /
+definitions:
+  handlers.TaskTime:
+    properties:
+      task_id:
+        type: integer
+      total_hours:
+        type: number
+      total_minutes:
+        type: integer
+    type: object
+  models.User:
+    properties:
+      address:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      passport_number:
+        type: string
+      patronymic:
+        type: string
+      surname:
+        type: string
+    type: object
+  requests.AddUserRequest:
+    properties:
+      passportNumber:
+        type: string
+    type: object
+  requests.ChangeUserInfo:
+    properties:
+      address:
+        type: string
+      name:
+        type: string
+      passport_number:
+        type: string
+      patronymic:
+        type: string
+      surname:
+        type: string
+    type: object
+  requests.EndTaskRequest:
+    properties:
+      task_id:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  requests.StartTaskRequest:
+    properties:
+      task_id:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample server for tracking tasks and user activities.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Time Tracker API
+  version: "1.0"
+paths:
+  /task/end:
+    put:
+      description: End a task by setting the end time
+      parameters:
+      - description: End Task Request
+        in: body
+        name: EndTaskRequest
+        required: true
+        schema:
+          $ref: '#/definitions/requests.EndTaskRequest'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Record not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: End a task
+      tags:
+      - tasks
+  /task/start:
+    post:
+      consumes:
+      - application/json
+      description: Start a new task for a user
+      parameters:
+      - description: Start Task Request
+        in: body
+        name: startTaskRequest
+        required: true
+        schema:
+          $ref: '#/definitions/requests.StartTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully started task
+          schema:
+            type: string
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+      summary: Start a task
+      tags:
+      - tasks
+  /user:
+    post:
+      consumes:
+      - application/json
+      description: Add a new user by providing their information
+      parameters:
+      - description: Add User Request
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/requests.AddUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Add a new user
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Update user information by providing their new details
+      parameters:
+      - description: Change User Info Request
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/requests.ChangeUserInfo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update user information
+      tags:
+      - users
+  /user/{userID}:
+    delete:
+      description: Delete a user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a user
+      tags:
+      - users
+  /user/{userID}/tasks:
+    get:
+      description: Get user tasks with total time spent within a specified date range
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: integer
+      - description: Start Date (YYYY-MM-DD)
+        in: query
+        name: start_date
+        required: true
+        type: string
+      - description: End Date (YYYY-MM-DD)
+        in: query
+        name: end_date
+        required: true
+        type: string
+      responses:
+        "200":
+          description: List of tasks with total time spent
+          schema:
+            items:
+              $ref: '#/definitions/handlers.TaskTime'
+            type: array
+        "400":
+          description: Invalid date format
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get user tasks with total time spent
+      tags:
+      - tasks
+  /users:
+    get:
+      description: Retrieve users with optional filtering by name, surname, patronymic,
+        address, and passport number, with pagination support
+      parameters:
+      - description: First Name
+        in: query
+        name: name
+        type: string
+      - description: Last Name
+        in: query
+        name: surname
+        type: string
+      - description: Patronymic
+        in: query
+        name: patronymic
+        type: string
+      - description: Address
+        in: query
+        name: address
+        type: string
+      - description: Passport Number
+        in: query
+        name: passportNumber
+        type: string
+      - description: Page number for pagination
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      responses:
+        "200":
+          description: List of users
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get users
+      tags:
+      - users
+swagger: "2.0"

@@ -13,6 +13,17 @@ import (
 	"time"
 )
 
+// EndTaskHandler handles ending a task
+//
+//	@Summary		End a task
+//	@Description	End a task by setting the end time
+//	@Tags			tasks
+//	@Param			EndTaskRequest	body	requests.EndTaskRequest	true	"End Task Request"
+//	@Success		200
+//	@Failure		400	{object}	map[string]string	"Invalid request"
+//	@Failure		404	{object}	map[string]string	"Record not found"
+//	@Failure		500	{object}	map[string]string	"Internal Server Error"
+//	@Router			/task/end [put]
 func EndTaskHandler(storage *postgresql.Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Debug("handling end task request")
