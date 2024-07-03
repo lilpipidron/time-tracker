@@ -49,7 +49,7 @@ func main() {
 
 	router.Post("/task/start", handlers.StartTaskHandler(storage))
 
-	router.Post("/tasks/stop", nil)
+	router.Post("/tasks/end", handlers.EndTaskHandler(storage))
 
 	router.Delete("/user/{userID}", handlers.DeleteUserHandler(storage))
 

@@ -32,7 +32,7 @@ type ResponseFromApi struct {
 
 func AddUserHandler(storage *postgresql.Storage, cfg config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Debug("Add user")
+		log.Debug("Handling request to add user")
 
 		var addUserRequest requests.AddUserRequest
 		var req interface{} = &addUserRequest
@@ -41,48 +41,36 @@ func AddUserHandler(storage *postgresql.Storage, cfg config.Config) http.Handler
 		log.Debug("Decoded body", "add user request", addUserRequest)
 
 		if err := validator.New().Struct(addUserRequest); err != nil {
-			var validateErr validator.ValidationErrors
-			errors.As(err, &validateErr)
+			var validateError validator.ValidationErrors
+			errors.As(err, &validateError)
 
 			render.Status(r, http.StatusBadRequest)
-
-			log.Info("invalid request", err)
-
-			render.JSON(w, r, validateErr.Error())
-
+			log.Info("Invalid request", "error", err)
+			render.JSON(w, r, validateError.Error())
 			return
 		}
 
 		passportData := strings.Split(addUserRequest.PassportNumber, " ")
-		if passportData == nil || len(passportData) < 2 {
+		if len(passportData) < 2 {
 			render.Status(r, http.StatusBadRequest)
-
 			render.JSON(w, r, "passport is required")
-
-			log.Info("passport is required")
-
+			log.Info("Passport is required")
 			return
 		}
 
 		series, err := strconv.Atoi(passportData[0])
 		if err != nil {
 			render.Status(r, http.StatusBadRequest)
-
 			render.JSON(w, r, fmt.Sprintf("passport series is required: %s", err.Error()))
-
-			log.Info(fmt.Sprintf("passport series is required: %s", err.Error()))
-
+			log.Info("Passport series is required", "error", err)
 			return
 		}
 
 		number, err := strconv.Atoi(passportData[1])
 		if err != nil {
 			render.Status(r, http.StatusBadRequest)
-
 			render.JSON(w, r, fmt.Sprintf("passport number is required: %s", err.Error()))
-
-			log.Info(fmt.Sprintf("passport number is required: %s", err.Error()))
-
+			log.Info("Passport number is required", "error", err)
 			return
 		}
 
@@ -92,15 +80,17 @@ func AddUserHandler(storage *postgresql.Storage, cfg config.Config) http.Handler
 		}
 
 		response, err := sendRequestToApi(requestToApi, cfg)
-		if errors.Is(err, fmt.Errorf("bad request")) {
-			render.Status(r, http.StatusBadRequest)
-			return
-		} else if errors.Is(err, fmt.Errorf("internal server error")) {
-			render.Status(r, http.StatusInternalServerError)
+		if err != nil {
+			if errors.Is(err, fmt.Errorf("bad request")) {
+				render.Status(r, http.StatusBadRequest)
+			} else if errors.Is(err, fmt.Errorf("internal server error")) {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			log.Error("Failed to send request to API", "error", err)
 			return
 		}
 
-		log.Debug("Response from API:", response)
+		log.Debug("Response from API", "response", response)
 		render.JSON(w, r, response)
 
 		user := models.User{
@@ -113,18 +103,20 @@ func AddUserHandler(storage *postgresql.Storage, cfg config.Config) http.Handler
 
 		if err = storage.DB.Create(&user).Error; err != nil {
 			render.Status(r, http.StatusInternalServerError)
-			render.JSON(w, r, fmt.Sprintf("error saving user: %s", err.Error()))
-			log.Debug("error saving user:", err)
+			render.JSON(w, r, nil)
+			log.Error("Error saving user", "error", err)
+			return
 		}
+		log.Debug("Successfully saved user", "user", user)
 	}
 }
 
 func sendRequestToApi(request RequestToApi, cfg config.Config) (*ResponseFromApi, error) {
-	log.Debug("Send request to API")
+	log.Debug("Sending request to API")
 
 	requestBody, err := json.Marshal(request)
 	if err != nil {
-		log.Debug("Failed marshalling request to API:", "error", err)
+		log.Error("Failed marshalling request to API", "error", err)
 		return nil, fmt.Errorf("error marshalling request body: %s", err.Error())
 	}
 
@@ -132,7 +124,7 @@ func sendRequestToApi(request RequestToApi, cfg config.Config) (*ResponseFromApi
 
 	req, err := http.NewRequest("GET", cfg.ApiUrl+"/info", bytes.NewBuffer(requestBody))
 	if err != nil {
-		log.Debug("Failed creating request to API:", "error", err)
+		log.Error("Failed creating request to API", "error", err)
 		return nil, fmt.Errorf("error creating HTTP request: %s", err.Error())
 	}
 
@@ -140,39 +132,38 @@ func sendRequestToApi(request RequestToApi, cfg config.Config) (*ResponseFromApi
 
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Debug("Failed sending request to API:", "error", err)
+		log.Error("Failed sending request to API", "error", err)
 		return nil, fmt.Errorf("error sending HTTP request: %s", err.Error())
 	}
+	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusBadRequest {
-		log.Debug("Get status bad request")
+		log.Debug("Received status bad request from API")
 		return nil, fmt.Errorf("bad request")
 	} else if resp.StatusCode == http.StatusInternalServerError {
-		log.Debug("Get status internal server error")
+		log.Debug("Received status internal server error from API")
 		return nil, fmt.Errorf("internal server error")
 	}
 
 	var responseFromApi ResponseFromApi
 	err = render.DecodeJSON(resp.Body, &responseFromApi)
 	if errors.Is(err, io.EOF) {
-		log.Debug("request body is empty")
-
+		log.Error("Request body is empty", "error", err)
 		return nil, fmt.Errorf("request body is empty: %s", err.Error())
 	}
-
 	if err != nil {
-		log.Error("failed to decode request body", err)
-		return nil, fmt.Errorf("failed to decode request body: %s", err.Error())
+		log.Error("Failed to decode response body", "error", err)
+		return nil, fmt.Errorf("failed to decode response body: %s", err.Error())
 	}
 
 	if err := validator.New().Struct(responseFromApi); err != nil {
 		var validateErr validator.ValidationErrors
 		errors.As(err, &validateErr)
 
-		log.Debug("invalid response", "response", responseFromApi)
-
+		log.Error("Invalid response from API", "response", responseFromApi, "error", err)
 		return nil, fmt.Errorf("invalid response: %s", err.Error())
 	}
 
+	log.Debug("Successfully received response from API", "response", responseFromApi)
 	return &responseFromApi, nil
 }

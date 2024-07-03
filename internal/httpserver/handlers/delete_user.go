@@ -10,7 +10,7 @@ import (
 
 func DeleteUserHandler(storage *postgresql.Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Debug("DeleteUser")
+		log.Debug("handling delete request")
 
 		userID := chi.URLParam(r, "userID")
 		var user models.User

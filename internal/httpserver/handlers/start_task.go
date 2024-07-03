@@ -14,7 +14,7 @@ import (
 
 func StartTaskHandler(storage *postgresql.Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Debug("starting task handler")
+		log.Debug("handling start task request")
 
 		var startTaskRequest requests.StartTaskRequest
 		var req interface{} = &startTaskRequest

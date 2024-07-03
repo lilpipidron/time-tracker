@@ -11,24 +11,34 @@ import (
 
 func GetUsersHandler(storage *postgresql.Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Debug("Get users")
+		log.Debug("handling get users")
 
 		var users []models.User
 		db := storage.DB
 
-		firstName := r.URL.Query().Get("first_name")
+		firstName := r.URL.Query().Get("name")
 		if firstName != "" {
-			db = db.Where("first_name = ?", firstName)
+			db = db.Where("name = ?", firstName)
 		}
 
-		lastName := r.URL.Query().Get("last_name")
+		lastName := r.URL.Query().Get("surname")
 		if lastName != "" {
-			db = db.Where("last_name = ?", lastName)
+			db = db.Where("surname = ?", lastName)
 		}
 
-		email := r.URL.Query().Get("email")
+		email := r.URL.Query().Get("patronymic")
 		if email != "" {
-			db = db.Where("email = ?", email)
+			db = db.Where("patronymic = ?", email)
+		}
+
+		address := r.URL.Query().Get("address")
+		if address != "" {
+			db = db.Where("address = ?", address)
+		}
+
+		passportNumber := r.URL.Query().Get("passportNumber")
+		if passportNumber != "" {
+			db = db.Where("passport_number = ?", passportNumber)
 		}
 
 		page := r.URL.Query().Get("page")
