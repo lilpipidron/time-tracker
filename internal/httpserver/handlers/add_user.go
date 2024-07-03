@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/charmbracelet/log"
@@ -114,21 +112,14 @@ func AddUserHandler(storage *postgresql.Storage, cfg config.Config) http.Handler
 func sendRequestToApi(request RequestToApi, cfg config.Config) (*ResponseFromApi, error) {
 	log.Debug("Sending request to API")
 
-	requestBody, err := json.Marshal(request)
-	if err != nil {
-		log.Error("Failed marshalling request to API", "error", err)
-		return nil, fmt.Errorf("error marshalling request body: %s", err.Error())
-	}
-
 	client := http.Client{}
 
-	req, err := http.NewRequest("GET", cfg.ApiUrl+"/info", bytes.NewBuffer(requestBody))
+	req, err := http.NewRequest("GET", cfg.ApiUrl+"/info"+"?passportSerie="+strconv.Itoa(request.PassportSerie)+
+		"&passportNumber="+strconv.Itoa(request.PassportNumber), nil)
 	if err != nil {
 		log.Error("Failed creating request to API", "error", err)
 		return nil, fmt.Errorf("error creating HTTP request: %s", err.Error())
 	}
-
-	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := client.Do(req)
 	if err != nil {
