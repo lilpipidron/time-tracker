@@ -30,7 +30,7 @@ type ResponseFromApi struct {
 	Address    string `json:"address"`
 }
 
-func AddUser(storage *postgresql.Storage, cfg config.Config) http.HandlerFunc {
+func AddUserHandler(storage *postgresql.Storage, cfg config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Debug("Add user")
 

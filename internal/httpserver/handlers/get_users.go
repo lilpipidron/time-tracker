@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-func GetUsers(storage *postgresql.Storage) http.HandlerFunc {
+func GetUsersHandler(storage *postgresql.Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Debug("Get users")
 
@@ -35,8 +35,22 @@ func GetUsers(storage *postgresql.Storage) http.HandlerFunc {
 		limit := r.URL.Query().Get("limit")
 
 		if page != "" && limit != "" {
-			pageInt, _ := strconv.Atoi(page)
-			limitInt, _ := strconv.Atoi(limit)
+			pageInt, err := strconv.Atoi(page)
+			if err != nil {
+				log.Debug("Error converting page to int")
+				log.Info("Error converting page to int")
+				render.Status(r, http.StatusInternalServerError)
+				render.JSON(w, r, render.M{"error": "Unable to parse page to int"})
+				return
+			}
+			limitInt, err := strconv.Atoi(limit)
+			if err != nil {
+				log.Debug("Error converting limit to int")
+				log.Info("Error converting limit to int")
+				render.Status(r, http.StatusInternalServerError)
+				render.JSON(w, r, render.M{"error": "Unable to parse limit to int"})
+				return
+			}
 			offset := (pageInt - 1) * limitInt
 			db = db.Offset(offset).Limit(limitInt)
 		}

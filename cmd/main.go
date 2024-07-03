@@ -43,19 +43,19 @@ func main() {
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
 
-	router.Get("/users", handlers.GetUsers(storage))
+	router.Get("/users", handlers.GetUsersHandler(storage))
 
 	router.Get("/user/{userID}/worklogs", nil)
 
-	router.Post("/task/start", nil)
+	router.Post("/task/start", handlers.StartTaskHandler(storage))
 
 	router.Post("/tasks/stop", nil)
 
-	router.Delete("/user/{userID}", handlers.DeleteUser(storage))
+	router.Delete("/user/{userID}", handlers.DeleteUserHandler(storage))
 
 	router.Put("/user", nil)
 
-	router.Post("/user", handlers.AddUser(storage, *cfg))
+	router.Post("/user", handlers.AddUserHandler(storage, *cfg))
 
 	addr := cfg.ServiceHost + ":" + strconv.Itoa(cfg.ServicePort)
 

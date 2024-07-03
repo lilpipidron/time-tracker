@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func DeleteUser(storage *postgresql.Storage) http.HandlerFunc {
+func DeleteUserHandler(storage *postgresql.Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Debug("DeleteUser")
 
