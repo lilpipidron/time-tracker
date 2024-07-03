@@ -45,11 +45,11 @@ func main() {
 
 	router.Get("/users", handlers.GetUsersHandler(storage))
 
-	router.Get("/user/{userID}/worklogs", nil)
+	router.Get("/user/{userID}/tasks", handlers.GetUserTasksHandler(storage))
 
 	router.Post("/task/start", handlers.StartTaskHandler(storage))
 
-	router.Put("/tasks/end", handlers.EndTaskHandler(storage))
+	router.Put("/task/end", handlers.EndTaskHandler(storage))
 
 	router.Delete("/user/{userID}", handlers.DeleteUserHandler(storage))
 
