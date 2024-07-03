@@ -41,7 +41,7 @@ func StartTaskHandler(storage *postgresql.Storage) http.HandlerFunc {
 			StartTime: time.Now(),
 		}
 
-		storage.DB.Create(userTask)
+		storage.DB.Create(&userTask)
 
 		log.Info("Successfully started task")
 		render.Status(r, http.StatusCreated)

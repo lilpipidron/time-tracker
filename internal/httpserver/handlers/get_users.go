@@ -47,18 +47,16 @@ func GetUsersHandler(storage *postgresql.Storage) http.HandlerFunc {
 		if page != "" && limit != "" {
 			pageInt, err := strconv.Atoi(page)
 			if err != nil {
-				log.Debug("Error converting page to int")
-				log.Info("Error converting page to int")
+				log.Error("Error converting page to int")
 				render.Status(r, http.StatusInternalServerError)
-				render.JSON(w, r, render.M{"error": "Unable to parse page to int"})
+				render.JSON(w, r, err.Error())
 				return
 			}
 			limitInt, err := strconv.Atoi(limit)
 			if err != nil {
-				log.Debug("Error converting limit to int")
-				log.Info("Error converting limit to int")
+				log.Error("Error converting limit to int")
 				render.Status(r, http.StatusInternalServerError)
-				render.JSON(w, r, render.M{"error": "Unable to parse limit to int"})
+				render.JSON(w, r, err.Error())
 				return
 			}
 			offset := (pageInt - 1) * limitInt
